@@ -15,11 +15,12 @@ AIRTABLE_USERS_TABLE_ID = os.environ.get('AIRTABLE_USERS_TABLE_ID')
 class User:
     airtable_table = Table(AIRTABLE_API_TOKEN, AIRTABLE_APP_ID, AIRTABLE_USERS_TABLE_ID)
     
-    def __init__(self, id: int, username: str, first_name: str, last_name: str) -> None:
+    def __init__(self, id: int, username: str, first_name: str, last_name: str, city_airtable_record_id: str) -> None:
         self.id = id
         self.username = username
         self.first_name = sanitise_text(first_name)
         self.last_name = sanitise_text(last_name)
+        self.city_airtable_record_id = city_airtable_record_id
         
     def get_airtable_record_fields(self):
         airtable_record_fields = {
@@ -35,18 +36,21 @@ class User:
             airtable_record_fields['Avatar'] = [attachment(avatar)]
             
         bio = self.get_bio()
-        if bio:
-            airtable_record_fields['Bio'] = bio
+        airtable_record_fields['Bio'] = bio
+            
+        cities = self.get_cities()
+        airtable_record_fields['City'] = cities
+        
+        print(cities)
         
         return airtable_record_fields
     
     def get_airtable_record(self):
-        user_data = [self.first_name, self.last_name, self.username]
-        formula = match({ 'IDtg': self.id })
-        airtable_record = self.airtable_table.first(formula=formula)
+        airtable_record = self.airtable_table.first(formula=match({ 'IDtg': self.id }))
 
         if airtable_record:
-            user_record_data = [None if field not in airtable_record['fields'] else airtable_record['fields'][field] for field in ['Name', 'Surname', 'tgusername']]
+            user_data = [self.first_name, self.last_name, self.username, self.get_cities(airtable_record)]
+            user_record_data = [None if field not in airtable_record['fields'] else airtable_record['fields'][field] for field in ['Name', 'Surname', 'tgusername', 'City']]
             need_update = any([user_data[i] != user_record_data[i] for i in range(len(user_data))])
 
             if need_update:                    
@@ -77,3 +81,15 @@ class User:
             bio = response["result"]["bio"]
             
         return bio
+    
+    def get_cities(self, airtable_record = None):
+        if not airtable_record:
+            airtable_record = self.airtable_table.first(formula=match({ 'IDtg': self.id }))
+        cities = []
+        if airtable_record and airtable_record['City']:
+            cities = airtable_record['City']
+        
+        if self.city_airtable_record_id not in cities:
+            cities.append(self.city_airtable_record_id)
+            
+        return cities

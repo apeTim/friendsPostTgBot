@@ -15,11 +15,11 @@ AIRTABLE_POSTS_TABLE_ID = os.environ.get('AIRTABLE_POSTS_TABLE_ID')
 class Post():
     airtable_table = Table(AIRTABLE_API_TOKEN, AIRTABLE_APP_ID, AIRTABLE_POSTS_TABLE_ID)
 
-    def __init__(self, id: int, chat_id: int, chat_airtable_record_id: str, text: str, creator: User, media_group_id: str) -> None:
+    def __init__(self, id: int, chat_id: int, city_airtable_record_id: str, text: str, creator: User, media_group_id: str) -> None:
         text = sanitise_text(text)
         self.id = id
         self.chat_id = chat_id
-        self.chat_airtable_record_id = chat_airtable_record_id
+        self.city_airtable_record_id = city_airtable_record_id
         self.text = text
         self.creator = creator
         self.media_group_id = media_group_id
@@ -46,7 +46,7 @@ class Post():
             'PostID': self.id,
             'Text': self.text,
             'User': [user_record['id']],
-            'City': [self.chat_airtable_record_id],
+            'City': [self.city_airtable_record_id],
             'Email': self.email,
             'Phone': self.phone,
             'tgusername': self.creator.username,

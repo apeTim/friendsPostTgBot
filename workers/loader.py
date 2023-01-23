@@ -40,7 +40,7 @@ class Loader:
         user = message.from_user
         id = message.message_id
         text = message.text or message.caption or ''
-        creator = User(user.id, user.username, user.first_name, user.last_name)
+        creator = User(user.id, user.username, user.first_name, user.last_name, self.cities_id[chat_id])
         media_group_id = message.media_group_id
         
         if chat_id not in self.cities_id:
