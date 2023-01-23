@@ -41,8 +41,6 @@ class User:
         cities = self.get_cities()
         airtable_record_fields['City'] = cities
         
-        print(cities)
-        
         return airtable_record_fields
     
     def get_airtable_record(self):
@@ -86,7 +84,7 @@ class User:
         if not airtable_record:
             airtable_record = self.airtable_table.first(formula=match({ 'IDtg': self.id }))
         cities = []
-        if airtable_record and airtable_record['City']:
+        if airtable_record and 'City' in airtable_record:
             cities = airtable_record['City']
         
         if self.city_airtable_record_id not in cities:
