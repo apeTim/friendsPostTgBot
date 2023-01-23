@@ -11,6 +11,7 @@ import traceback
 BOT_API_TOKEN = os.environ.get('BOT_API_TOKEN')
 
 bot = Bot(BOT_API_TOKEN)
+loader = Loader()
 dp = bot.dispatcher
 
 @dp.message_handler(content_types=[ContentType.TEXT])
@@ -44,20 +45,17 @@ def start_bot():
 def start_post_loader():
     print('Post Loader Started!')
     
-    loader = Loader()
-    
     while True:
         loader.posts_load()
         time.sleep(1)
     
 def start_member_parser():
     print('Member Parser Started!')
-    
-    loader = Loader()
-    
+        
     while True:
         loader.update_chat_members_count()
-        time.sleep(10)
+        bot.loader.update_chats()
+        time.sleep(60)
         
 if __name__ == '__main__':
     bot_thread = Thread(target=start_bot)

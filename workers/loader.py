@@ -28,12 +28,7 @@ class Loader:
     cities_table = Table(AIRTABLE_API_TOKEN, AIRTABLE_APP_ID, AIRTABLE_CITIES_TABLE_ID)
 
     def __init__(self) -> None:
-        for row in self.cities_table.all():
-            try:
-                city_id = row['fields']['IDtg']
-                self.cities_id[city_id] = row['id']
-            except:
-                continue
+        self.update_chats()
 
     async def post_create(self, message: Message) -> None:
         chat_id = message.chat.id
@@ -107,3 +102,17 @@ class Loader:
             
             members = response.json()['result']
             self.cities_table.update(record_id, { 'Auditorium': members })
+
+    def update_chats(self) -> None:
+        cities_id = {}
+        
+        for row in self.cities_table.all():
+            try:
+                city_id = row['fields']['IDtg']
+                work = row['fields']['Work'] if 'Work' in row['fields'] else False
+                if work:
+                    cities_id[city_id] = row['id']
+            except:
+                continue
+            
+        self.cities_id = cities_id
