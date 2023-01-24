@@ -38,7 +38,11 @@ class Bot:
     async def check_username(self, message: Message) -> bool:
         if not message.from_user.username:
             if self.prev_notification_reply:
-                await self.prev_notification_reply.delete()
+                try:
+                    await self.prev_notification_reply.delete()
+                except:
+                    pass
+                
             reply = await message.reply(f'{message.from_user.full_name}, добавьте username, [подробнее](https://t.me/miamifriends/71513)', parse_mode='MarkdownV2', disable_web_page_preview=True)
             self.prev_notification_reply = reply
             
