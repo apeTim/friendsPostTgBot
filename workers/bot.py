@@ -3,7 +3,7 @@ from aiogram.types import Message
 from workers.loader import Loader
 
 class Bot:
-    prev_notification_reply: Message = None
+    prev_notification_replies: Message = {}
     
     def __init__(self, token: str) -> None:
         self.instance = BotInstance(token)
@@ -37,14 +37,14 @@ class Bot:
         
     async def check_username(self, message: Message) -> bool:
         if not message.from_user.username:
-            if self.prev_notification_reply:
+            if message.chat.id in self.prev_notification_replies and self.prev_notification_replies[message.chat.id]:
                 try:
-                    await self.prev_notification_reply.delete()
+                    await self.prev_notification_replies[message.chat.id].delete()
                 except:
                     pass
                 
             reply = await message.reply(f'{message.from_user.full_name}, добавьте username, [подробнее](https://t.me/miamifriends/71513)', parse_mode='MarkdownV2', disable_web_page_preview=True)
-            self.prev_notification_reply = reply
+            self.prev_notification_replies[message.chat.id] = reply
             
             return False
         
